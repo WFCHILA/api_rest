@@ -1,0 +1,17 @@
+INSERT INTO categorias (nome, descricao) VALUES ('Eletronicos', 'Dispositivos eletronicos em geral.');
+INSERT INTO categorias (nome, descricao) VALUES ('Roupas', 'Vestuario e acessorios.');
+INSERT INTO categorias (nome, descricao) VALUES ('Alimentos', 'Produtos alimenticios e bebidas.');
+INSERT INTO categorias (nome, descricao) VALUES ('Livros', 'Publicacoes e materiais de leitura.');
+INSERT INTO clientes (nome, email, telefone, endereco) VALUES ('Maria Silva', 'maria.silva@email.com', '11987654321', 'Rua A, 123, Centro');
+INSERT INTO clientes (nome, email, telefone, endereco) VALUES ('Joao Santos', 'joao.santos@email.com', '21998765432', 'Av. B, 456, Bairro X');
+INSERT INTO clientes (nome, email, telefone, endereco) VALUES ('Ana Pereira', 'ana.pereira@email.com', '31976543210', 'Travessa C, 789, Vila Y');
+INSERT INTO fornecedores (nome, email, telefone, cnpj) VALUES ('Tech Supplies Ltda.', 'contato@techsupplies.com', '11911122233', '00.111.222/0001-33');
+INSERT INTO fornecedores (nome, email, telefone, cnpj) VALUES ('Fashion Wear SA', 'info@fashionwear.com', '21944555666', '44.555.666/0001-77');
+INSERT INTO fornecedores (nome, email, telefone, cnpj) VALUES ('Alimentos Saudaveis ME', 'vendas@alimentos.com', '31977888999', '77.888.999/0001-11');
+INSERT INTO funcionarios (nome, cargo, salario, data_contratacao) VALUES ('Carlos Souza', 'Gerente de Vendas', 5000.00, '2020-01-15');
+INSERT INTO funcionarios (nome, cargo, salario, data_contratacao) VALUES ('Fernanda Lima', 'Atendente', 2500.00, '2021-03-20');
+INSERT INTO funcionarios (nome, cargo, salario, data_contratacao) VALUES ('Pedro Oliveira', 'Estoquista', 2000.00, '2022-07-01');
+INSERT INTO produtos (nome, descricao, quantidade, preco, categoria_id, fornecedor_id, cliente_id, funcionario_id) VALUES ('Smartphone X', 'Celular de ultima geracao', 50, 2500.00, 1, 1, 1, 1);
+INSERT INTO produtos (nome, descricao, quantidade, preco, categoria_id, fornecedor_id, cliente_id, funcionario_id) VALUES ('Camiseta Basica', 'Camiseta de algodao branca', 200, 49.90, 2, 2, 2, 2);
+INSERT INTO produtos (nome, descricao, quantidade, preco, categoria_id, fornecedor_id, cliente_id, funcionario_id) VALUES ('Arroz Parboilizado 5kg', 'Arroz de qualidade superior', 100, 25.00, 3, 3, 3, 3);
+INSERT INTO produtos (nome, descricao, quantidade, preco, categoria_id, fornecedor_id, cliente_id, funcionario_id) VALUES ('Clean Code', 'Livro sobre boas praticas de programacao', 30, 120.00, 4, 1, 1, 1);

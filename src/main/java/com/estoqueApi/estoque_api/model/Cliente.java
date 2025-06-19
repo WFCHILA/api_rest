@@ -1,4 +1,4 @@
-package com.estoqueApi.estoque_api.model;
+package com.estoqueApi.estoque_api.model; // PACOTE CORRIGIDO!
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,29 +8,19 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+
 @Entity
-@Table(name = "produtos")
+@Table(name = "clientes")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Produto {
+public class Cliente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String nome;
-
-    private String descricao;
-
-    private Integer quantidade;
-
-    private Double preco;
-
-    public Produto(String nome, String descricao, Integer quantidade, Double preco) {
-        this.nome = nome;
-        this.descricao = descricao;
-        this.quantidade = quantidade;
-        this.preco = preco;
-    }
+    private String email;
+    private String telefone;
 }

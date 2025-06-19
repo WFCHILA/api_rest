@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Estoque</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 25px;
+            background: #eef1f5;
+            color: #34495e;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        form {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #dcdcdc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1em;
+            color: #555;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        button {
+            margin-top: 25px;
+            padding: 12px 22px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        button:hover:not(:disabled) {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        button.salvar {
+            background-color: #28a745; /* Verde Bootstrap */
+            color: white;
+            margin-right: 15px;
+        }
+        button.cancelar {
+            background-color: #dc3545; /* Vermelho Bootstrap */
+            color: white;
+        }
+        ul#lista-produtos {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 30px;
+        }
+        ul#lista-produtos li {
+            background: white;
+            margin-bottom: 12px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Permite quebrar linha em telas menores */
+            font-size: 0.95em;
+            color: #444;
+        }
+        ul#lista-produtos li .info-produto {
+            flex-grow: 1;
+            margin-right: 15px;
+            padding: 5px 0; /* Adicionado para espaçamento */
+        }
+        ul#lista-produtos li .botoes-acao {
+            display: flex;
+            gap: 10px; /* Espaçamento entre os botões */
+            padding: 5px 0; /* Adicionado para espaçamento */
+        }
+        ul#lista-produtos li button {
+            background-color: #007bff; /* Azul Bootstrap */
+            padding: 8px 15px;
+            font-size: 0.85em;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.3s;
+            margin-top: 0; /* Ajusta o margin-top herdado */
+        }
+        ul#lista-produtos li button.excluir {
+            background-color: #dc3545; /* Vermelho Bootstrap */
+        }
+        #mensagem {
+            text-align: center;
+            margin: 25px 0;
+            padding: 12px;
+            border-radius: 5px;
+            display: none;
+            font-weight: bold;
+            font-size: 0.95em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        #mensagem.sucesso {
+            background-color: #d4edda; /* Verde claro */
+            color: #155724; /* Texto verde escuro */
+            border: 1px solid #c3e6cb;
+        }
+        #mensagem.erro {
+            background-color: #f8d7da; /* Vermelho claro */
+            color: #721c24; /* Texto vermelho escuro */
+            border: 1px solid #f5c6cb;
+        }
+        #mensagem.loading {
+            background-color: #cce5ff; /* Azul claro */
+            color: #004085; /* Texto azul escuro */
+            border: 1px solid #b8daff;
+        }
+
+        /* Novo CSS para os botões de navegação globais */
+        .nav-global-buttons {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .nav-global-buttons button {
+            padding: 10px 20px;
+            background-color: #007bff; /* Azul para destaque */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            margin: 0 10px; /* Espaço entre os botões se houver mais de um */
+        }
+        .nav-global-buttons button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        .nav-global-buttons button:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-global-buttons">
+        <button onclick="window.location.href='vendas.html'">Ir para a Tela de Vendas</button>
+    </div>
+
+    <h1>Cadastro de Produtos</h1>
+
+    <form id="produtoForm">
+    <input type="hidden" id="id" name="id">
+
+    <label for="nome">Nome:</label>
+    <input type="text" id="nome" name="nome" required><br>
+
+    <label for="descricao">Descrição:</label>
+    <input type="text" id="descricao" name="descricao" required><br>
+
+    <label for="quantidade">Quantidade:</label>
+    <input type="number" id="quantidade" name="quantidade" min="0" required><br>
+
+    <label for="preco">Preço:</label>
+    <input type="number" id="preco" name="preco" step="0.01" min="0" required><br>
+
+    <label for="categoriaId">Categoria:</label>
+    <select id="categoriaId" name="categoriaId" required>
+        <option value="">Selecione...</option>
+        <!-- opções serão adicionadas aqui -->
+    </select><br>
+
+    <label for="fornecedorId">Fornecedor:</label>
+    <select id="fornecedorId" name="fornecedorId">
+        <option value="">Selecione...</option>
+    </select><br>
+
+    <label for="clienteId">Cliente:</label>
+    <select id="clienteId" name="clienteId">
+        <option value="">Selecione...</option>
+    </select><br>
+
+    <label for="funcionarioId">Funcionário:</label>
+    <select id="funcionarioId" name="funcionarioId">
+        <option value="">Selecione...</option>
+    </select><br>
+
+    <button type="submit" id="btnSalvar" class="salvar">Salvar</button>
+    <button type="reset" id="btnCancelar" class="cancelar">Cancelar</button>
+</form>
+
+    <div id="mensagem"></div>
+
+    <h2>Produtos Cadastrados</h2>
+    <ul id="lista-produtos"></ul>
+
+<script>
+    // URL base da sua API Spring Boot
+    const API_BASE_URL = "http://localhost:8080"; // Mude para a porta correta se for diferente de 8080
+
+    // Elementos do DOM
+    const produtoForm = document.getElementById("produtoForm");
+    const idInput = document.getElementById("id");
+    const nomeInput = document.getElementById("nome");
+    const descricaoInput = document.getElementById("descricao");
+    const quantidadeInput = document.getElementById("quantidade");
+    const precoInput = document.getElementById("preco");
+    const categoriaSelect = document.getElementById("categoriaId");
+    const fornecedorSelect = document.getElementById("fornecedorId");
+    const clienteSelect = document.getElementById("clienteId");
+    const funcionarioSelect = document.getElementById("funcionarioId");
+
+    const btnSalvar = document.getElementById("btnSalvar");
+    const btnCancelar = document.getElementById("btnCancelar");
+    const mensagemDiv = document.getElementById("mensagem");
+    const listaProdutos = document.getElementById("lista-produtos");
+
+    // Exibe mensagem com classe e apaga após 3 seg
+    function mostrarMensagem(texto, tipo = "sucesso") {
+        mensagemDiv.textContent = texto;
+        mensagemDiv.className = ""; // Limpa classes anteriores
+        mensagemDiv.classList.add(tipo);
+        mensagemDiv.style.display = "block";
+        setTimeout(() => {
+            mensagemDiv.style.display = "none";
+        }, 3000);
+    }
+
+    // Carregar selects genéricos com tratamento de erro
+    async function carregarSelect(endpoint, selectElement) {
+        selectElement.innerHTML = '<option value="">Carregando...</option>';
+        try {
+            const res = await fetch(`${API_BASE_URL}${endpoint}`);
+            if (!res.ok) throw new Error(`Status ${res.status}: ${await res.text() || res.statusText}`);
+            const data = await res.json();
+            selectElement.innerHTML = '<option value="">Selecione</option>';
+            if (data && data.length > 0) { // Verifica se há dados antes de preencher
+                data.forEach(item => {
+                    const opt = document.createElement("option");
+                    opt.value = item.id;
+                    opt.textContent = item.nome; // Assumindo que a propriedade para exibição é 'nome'
+                    selectElement.appendChild(opt);
+                });
+            } else {
+                selectElement.innerHTML = '<option value="">Nenhum item encontrado</option>';
+            }
+        } catch (e) {
+            selectElement.innerHTML = '<option value="">Erro ao carregar</option>';
+            mostrarMensagem(`Erro ao carregar ${selectElement.id.replace('Id', '')}s: ${e.message}`, "erro");
+        }
+    }
+
+    // Criar item de produto na lista com botões e eventos
+    function criarItemProduto(p) {
+        const item = document.createElement('li');
+
+        const infoProduto = document.createElement('div');
+        infoProduto.classList.add('info-produto');
+        infoProduto.innerHTML = `
+            <strong>${p.nome}</strong> - ${p.descricao} <br>
+            Quantidade: ${p.quantidade} | Preço: R$ ${p.preco ? p.preco.toFixed(2) : 'N/A'}<br>
+            Categoria: ${p.categoria ? p.categoria.nome : 'N/A'} | Fornecedor: ${p.fornecedor ? p.fornecedor.nome : 'N/A'}<br>
+            Cliente: ${p.cliente ? p.cliente.nome : 'N/A'} | Funcionário: ${p.funcionario ? p.funcionario.nome : 'N/A'}
+        `;
+
+        const containerBotoes = document.createElement('div');
+        containerBotoes.classList.add('botoes-acao');
+
+        const btnEditar = document.createElement('button');
+        btnEditar.textContent = 'Editar';
+        btnEditar.onclick = () => editarProduto(p);
+        btnEditar.disabled = btnSalvar.disabled; // Garante que os botões da lista reflitam o estado do form
+        containerBotoes.appendChild(btnEditar);
+
+        const btnExcluir = document.createElement('button');
+        btnExcluir.textContent = 'Excluir';
+        btnExcluir.classList.add('excluir');
+        btnExcluir.onclick = () => excluirProduto(p.id);
+        btnExcluir.disabled = btnSalvar.disabled; // Garante que os botões da lista reflitam o estado do form
+        containerBotoes.appendChild(btnExcluir);
+
+        item.appendChild(infoProduto);
+        item.appendChild(containerBotoes);
+
+        return item;
+    }
+
+    // Carregar lista de produtos da API
+    async function carregarProdutos() {
+        listaProdutos.innerHTML = "<li>Carregando produtos...</li>";
+        desabilitarBotoes(true); // Desabilita botões enquanto carrega
+        try {
+            const res = await fetch(`${API_BASE_URL}/produtos`);
+            if (!res.ok) throw new Error(`Status ${res.status}: ${await res.text() || res.statusText}`);
+            const data = await res.json();
+            listaProdutos.innerHTML = ""; // Limpa "Carregando..."
+            if (data.length === 0) {
+                listaProdutos.innerHTML = "<li>Nenhum produto cadastrado.</li>";
+            } else {
+                data.forEach(p => {
+                    listaProdutos.appendChild(criarItemProduto(p));
+                });
+                mostrarMensagem("Produtos carregados com sucesso", "sucesso");
+            }
+        } catch (e) {
+            mostrarMensagem(`Erro ao carregar produtos: ${e.message}`, "erro");
+            listaProdutos.innerHTML = "<li>Erro ao carregar produtos.</li>";
+        } finally {
+            desabilitarBotoes(false); // Habilita botões após carregar
+        }
+    }
+
+    // Habilitar/desabilitar botões salvar, cancelar e os da lista
+    function desabilitarBotoes(estado) {
+        btnSalvar.disabled = estado;
+        btnCancelar.disabled = estado;
+        // Também bloqueia botões editar e excluir
+        const botoesLista = listaProdutos.querySelectorAll('button');
+        botoesLista.forEach(b => b.disabled = estado);
+    }
+
+    // Validar formulário, retorna true se válido, ou string com erro
+    function validarFormulario() {
+        if (!nomeInput.value.trim()) return "Nome é obrigatório.";
+        if (!descricaoInput.value.trim()) return "Descrição é obrigatória.";
+        
+        const quantidade = parseInt(quantidadeInput.value);
+        if (isNaN(quantidade) || quantidade < 0) return "Quantidade deve ser um número não negativo.";
+        
+        const preco = parseFloat(precoInput.value);
+        if (isNaN(preco) || preco < 0) return "Preço deve ser um número não negativo.";
+        if (precoInput.value.trim() === "") return "Preço é obrigatório.";
+
+
+        if (!categoriaSelect.value) return "Selecione uma Categoria.";
+        if (!fornecedorSelect.value) return "Selecione um Fornecedor.";
+        if (!clienteSelect.value) return "Selecione um Cliente.";
+        if (!funcionarioSelect.value) return "Selecione um Funcionário.";
+        
+        return true;
+    }
+
+    // Função salvar produto (criar ou atualizar)
+    async function salvarProduto(event) {
+        event.preventDefault(); // Impede o recarregamento da página
+
+        const validacao = validarFormulario();
+        if (validacao !== true) {
+            mostrarMensagem(validacao, "erro");
+            return;
+        }
+
+        desabilitarBotoes(true);
+        mostrarMensagem("Salvando produto...", "loading");
+
+        const produto = {
+            id: idInput.value ? parseInt(idInput.value) : null,
+            nome: nomeInput.value.trim(),
+            descricao: descricaoInput.value.trim(),
+            // Garantir que quantidade e preco são números
+            quantidade: parseInt(quantidadeInput.value),
+            preco: parseFloat(precoInput.value),
+            // Enviar apenas os IDs para as associações
+            categoria: { id: parseInt(categoriaSelect.value) },
+            fornecedor: { id: parseInt(fornecedorSelect.value) },
+            cliente: { id: parseInt(clienteSelect.value) },
+            funcionario: { id: parseInt(funcionarioSelect.value) }
+        };
+
+        const id = idInput.value;
+        const url = id ? `${API_BASE_URL}/produtos/${id}` : `${API_BASE_URL}/produtos`;
+        const metodo = id ? "PUT" : "POST";
+
+        try {
+            const res = await fetch(url, {
+                method: metodo,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(produto)
+            });
+            if (!res.ok) {
+                // Tenta ler a mensagem de erro do backend se disponível
+                let errorDetails = await res.text();
+                try {
+                    const errorJson = JSON.parse(errorDetails);
+                    errorDetails = errorJson.message || errorJson.error || errorDetails;
+                } catch (e) {
+                    // Não é JSON, usa o texto puro
+                }
+                throw new Error(`Status ${res.status}: ${errorDetails || res.statusText}`);
+            }
+
+            mostrarMensagem(`Produto ${id ? 'atualizado' : 'cadastrado'} com sucesso!`, "sucesso");
+            limparFormulario();
+            await carregarProdutos(); // Recarrega a lista
+        } catch (e) {
+            mostrarMensagem(`Erro ao salvar produto: ${e.message}`, "erro");
+        } finally {
+            desabilitarBotoes(false); // Habilita botões após a operação
+        }
+    }
+
+    // Excluir produto
+    async function excluirProduto(id) {
+        if (!confirm("Deseja realmente excluir este produto?")) return;
+
+        desabilitarBotoes(true);
+        mostrarMensagem("Excluindo produto...", "loading");
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/produtos/${id}`, { method: "DELETE" });
+            if (!res.ok) {
+                let errorDetails = await res.text();
+                try {
+                    const errorJson = JSON.parse(errorDetails);
+                    errorDetails = errorJson.message || errorJson.error || errorDetails;
+                } catch (e) {
+                    // Não é JSON, usa o texto puro
+                }
+                throw new Error(`Status ${res.status}: ${errorDetails || res.statusText}`);
+            }
+            mostrarMensagem("Produto excluído com sucesso!", "sucesso");
+            await carregarProdutos();
+        } catch (e) {
+            mostrarMensagem(`Erro ao excluir produto: ${e.message}`, "erro");
+        } finally {
+            desabilitarBotoes(false);
+        }
+    }
+
+    // Preparar formulário para editar produto
+    function editarProduto(produto) {
+        idInput.value = produto.id;
+        nomeInput.value = produto.nome;
+        descricaoInput.value = produto.descricao;
+        quantidadeInput.value = produto.quantidade;
+        precoInput.value = produto.preco;
+        // Assegura que os selects recebam o ID da FK ou uma string vazia
+        categoriaSelect.value = produto.categoria ? produto.categoria.id : "";
+        fornecedorSelect.value = produto.fornecedor ? produto.fornecedor.id : "";
+        clienteSelect.value = produto.cliente ? produto.cliente.id : "";
+        funcionarioSelect.value = produto.funcionario ? produto.funcionario.id : "";
+        window.scrollTo({ top: 0, behavior: "smooth" }); // scroll pro topo do formulário
+    }
+
+    // Limpar formulário
+    function limparFormulario() {
+        produtoForm.reset(); // Reseta todos os campos do formulário (incluindo inputs text e number)
+        idInput.value = ""; // Garante que o ID oculto seja limpo
+        // Reseta os selects para a opção padrão "Selecione"
+        categoriaSelect.value = ""; 
+        fornecedorSelect.value = "";
+        clienteSelect.value = "";
+        funcionarioSelect.value = "";
+        mensagemDiv.style.display = "none";
+    }
+
+    // Eventos dos botões
+    produtoForm.addEventListener("submit", salvarProduto); // Associa o submit do form à função salvar
+    btnCancelar.addEventListener("click", () => {
+        limparFormulario();
+        // A mensagem já é escondida por limparFormulario()
+    });
+
+    // Inicialização ao carregar a página
+    window.addEventListener("load", async () => {
+        // Carrega os selects primeiro, depois os produtos
+        await Promise.all([
+            carregarSelect("/categorias", categoriaSelect),
+            carregarSelect("/fornecedores", fornecedorSelect),
+            carregarSelect("/clientes", clienteSelect),
+            carregarSelect("/funcionarios", funcionarioSelect)
+        ]);
+        carregarProdutos();
+    });
+</script>
+</body>
+</html>

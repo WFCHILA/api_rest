@@ -8,12 +8,13 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+
 @Entity
-@Table(name = "produtos")
+@Table(name = "fornecedores")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Produto {
+public class Fornecedor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,16 +22,9 @@ public class Produto {
 
     private String nome;
 
-    private String descricao;
+    private String cnpj;
 
-    private Integer quantidade;
+    private String telefone;
 
-    private Double preco;
-
-    public Produto(String nome, String descricao, Integer quantidade, Double preco) {
-        this.nome = nome;
-        this.descricao = descricao;
-        this.quantidade = quantidade;
-        this.preco = preco;
-    }
+    private String email;
 }

@@ -1,0 +1,35 @@
+plugins {
+    id 'java' // Aplica o plugin Java para compilar e empacotar seu código
+    // id 'application' // Opcional: Se você quer uma aplicação Java executável
+}
+
+group 'com.meuprojeto' // Um identificador para o seu grupo de pacotes
+version '1.0-SNAPSHOT' // A versão do seu projeto
+
+java {
+    sourceCompatibility = '17' // Defina a versão do Java que você está usando (ex: '11', '17', '21')
+    targetCompatibility = '17'
+}
+
+repositories {
+    mavenCentral() // Onde o Gradle vai procurar as dependências (como o H2)
+}
+
+dependencies {
+    // Dependência do H2 Database
+    implementation 'com.h2database:h2:2.2.224' // Sempre verifique a versão mais recente em Maven Central
+
+    // Dependência para testes (opcional, mas recomendado)
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// Opcional: Configuração para rodar sua aplicação principal
+// Se você usou 'id 'application' acima
+// application {
+//     mainClass = 'com.meuprojeto.H2DatabaseCreator' // Substitua pelo caminho completo da sua classe principal
+// }

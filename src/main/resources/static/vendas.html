@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela de Vendas</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 25px;
+            background: #eef1f5;
+            color: #34495e;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            flex: 1;
+            min-width: 300px;
+        }
+        #mensagem {
+            text-align: center;
+            margin: 25px 0;
+            padding: 12px;
+            border-radius: 5px;
+            display: none;
+            font-weight: bold;
+            font-size: 0.95em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        #mensagem.sucesso { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        #mensagem.erro { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        #mensagem.loading { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; }
+
+        #lista-produtos-venda, #carrinho-venda {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        #lista-produtos-venda li, #carrinho-venda li {
+            background: #f8f8f8;
+            margin-bottom: 10px;
+            padding: 12px 15px;
+            border-radius: 6px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            color: #555;
+            flex-wrap: wrap;
+        }
+        #lista-produtos-venda li button, #carrinho-venda li button {
+            background-color: #007bff;
+            padding: 8px 12px;
+            font-size: 0.8em;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.3s;
+            margin-left: 10px;
+            margin-top: 5px;
+        }
+        #lista-produtos-venda li button:hover, #carrinho-venda li button:hover {
+            background-color: #0056b3;
+        }
+        #carrinho-venda li input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            margin: 0 10px;
+        }
+        #carrinho-venda li .remover-item {
+            background-color: #dc3545;
+        }
+        #carrinho-venda li .remover-item:hover {
+            background-color: #c82333;
+        }
+        #total-venda {
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            color: #2c3e50;
+        }
+        .botoes-venda {
+            text-align: right;
+            margin-top: 20px;
+        }
+        .botoes-venda button {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        .botoes-venda button.finalizar {
+            background-color: #28a745;
+            color: white;
+            margin-right: 15px;
+        }
+        .botoes-venda button.cancelar-venda {
+            background-color: #6c757d;
+            color: white;
+        }
+        .botoes-venda button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .botoes-venda button:hover:not(:disabled) {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+        .botoes-venda button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        .campo-relacionado {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .campo-relacionado label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .campo-relacionado select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        /* CSS para o botão de navegação */
+        .nav-buttons {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .nav-buttons button {
+            padding: 10px 20px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .nav-buttons button:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-buttons">
+        <button onclick="window.location.href='tela.html'">Voltar para Gerenciamento</button>
+    </div>
+
+    <h1>Tela de Vendas</h1>
+
+    <div id="mensagem"></div>
+
+    <div class="container">
+        <div class="section">
+            <h2>Produtos Disponíveis</h2>
+            <ul id="lista-produtos-venda">
+                <li>Carregando produtos...</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Carrinho de Compras</h2>
+            <ul id="carrinho-venda">
+                <li id="carrinho-vazio-mensagem">Nenhum item no carrinho.</li>
+            </ul>
+            <div id="total-venda">Total: R$ 0.00</div>
+            <div class="botoes-venda">
+                <button class="finalizar" id="btn-finalizar-venda" disabled>Finalizar Venda</button>
+                <button class="cancelar-venda" id="btn-cancelar-venda" disabled>Cancelar Venda</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = "http://localhost:8080"; 
+
+        const listaProdutosVenda = document.getElementById("lista-produtos-venda");
+        const carrinhoVenda = document.getElementById("carrinho-venda");
+        const carrinhoVazioMensagem = document.getElementById("carrinho-vazio-mensagem");
+        const totalVendaSpan = document.getElementById("total-venda");
+        const mensagemDiv = document.getElementById("mensagem");
+        const btnFinalizarVenda = document.getElementById("btn-finalizar-venda");
+        const btnCancelarVenda = document.getElementById("btn-cancelar-venda");
+        // REMOVENDO REFERÊNCIAS AOS SELECTS DE CLIENTE E FUNCIONÁRIO
+        // const clienteSelect = document.getElementById("clienteId"); 
+        // const funcionarioSelect = document.getElementById("funcionarioId");
+
+        let produtosDisponiveis = []; 
+        let carrinho = new Map(); 
+
+        function mostrarMensagem(texto, tipo = "sucesso") {
+            mensagemDiv.textContent = texto;
+            mensagemDiv.className = "";
+            mensagemDiv.classList.add(tipo);
+            mensagemDiv.style.display = "block";
+            setTimeout(() => {
+                mensagemDiv.style.display = "none";
+            }, 3000);
+        }
+
+        function desabilitarBotoesVenda(estado) {
+            btnFinalizarVenda.disabled = estado;
+            btnCancelarVenda.disabled = estado;
+            const botoesAdicionar = listaProdutosVenda.querySelectorAll('button');
+            botoesAdicionar.forEach(b => b.disabled = estado);
+            const inputsCarrinho = carrinhoVenda.querySelectorAll('input, button');
+            inputsCarrinho.forEach(el => el.disabled = estado);
+            // REMOVENDO DESABILITAÇÃO DE SELECTS DE CLIENTE E FUNCIONÁRIO
+            // clienteSelect.disabled = estado;
+            // funcionarioSelect.disabled = estado;
+        }
+
+        async function carregarDadosIniciais() {
+            desabilitarBotoesVenda(true);
+            mostrarMensagem("Carregando dados...", "loading");
+            try {
+                const resProdutos = await fetch(`${API_BASE_URL}/produtos`);
+                if (!resProdutos.ok) throw new Error(`Produtos Status ${resProdutos.status}: ${await resProdutos.text() || resProdutos.statusText}`);
+                produtosDisponiveis = await resProdutos.json();
+                renderizarProdutosDisponiveis();
+
+                // REMOVENDO CARREGAMENTO DE CLIENTES E FUNCIONÁRIOS
+                // const resClientes = await fetch(`${API_BASE_URL}/clientes`);
+                // if (!resClientes.ok) throw new Error(`Clientes Status ${resClientes.status}: ${await resClientes.text() || resClientes.statusText}`);
+                // const clientes = await resClientes.json();
+                // preencherSelect(clienteSelect, clientes);
+
+                // const resFuncionarios = await fetch(`${API_BASE_URL}/funcionarios`);
+                // if (!resFuncionarios.ok) throw new Error(`Funcionarios Status ${resFuncionarios.status}: ${await resFuncionarios.text() || resFuncionarios.statusText}`);
+                // const funcionarios = await resFuncionarios.json();
+                // preencherSelect(funcionarioSelect, funcionarios);
+
+                mostrarMensagem("Dados carregados com sucesso!", "sucesso");
+            } catch (e) {
+                mostrarMensagem(`Erro ao carregar dados: ${e.message}`, "erro");
+                listaProdutosVenda.innerHTML = "<li>Erro ao carregar produtos.</li>";
+                // REMOVENDO TRATAMENTO DE ERRO PARA SELECTS REMOVIDOS
+                // clienteSelect.innerHTML = "<option>Erro ao carregar</option>";
+                // funcionarioSelect.innerHTML = "<option>Erro ao carregar</option>";
+            } finally {
+                atualizarCarrinho(); 
+            }
+        }
+
+        // FUNÇÃO preencherSelect AGORA É INÚTIL, POIS NÃO HÁ SELECTS RELACIONADOS
+        // No entanto, vou mantê-la comentada caso você queira reutilizá-la no futuro
+        /*
+        function preencherSelect(selectElement, data) {
+            selectElement.innerHTML = '<option value="">Selecione...</option>';
+            if (data && data.length > 0) { 
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.nome; // Assumindo que o nome do item é 'nome'
+                    selectElement.appendChild(option);
+                });
+            } else {
+                selectElement.innerHTML += '<option value="">Nenhum item encontrado</option>';
+            }
+        }
+        */
+
+        function renderizarProdutosDisponiveis() {
+            listaProdutosVenda.innerHTML = "";
+            if (produtosDisponiveis.length === 0) {
+                listaProdutosVenda.innerHTML = "<li>Nenhum produto disponível.</li>";
+                return;
+            }
+            produtosDisponiveis.forEach(produto => {
+                const item = document.createElement('li');
+                item.innerHTML = `
+                    <span>${produto.nome} (Estoque: ${produto.quantidade}) - R$ ${produto.preco ? produto.preco.toFixed(2) : 'N/A'}</span>
+                    <button data-produto-id="${produto.id}" ${produto.quantidade <= 0 ? 'disabled' : ''}>Adicionar</button>
+                `;
+                item.querySelector('button').onclick = (e) => adicionarAoCarrinho(e.target.dataset.produtoId);
+                listaProdutosVenda.appendChild(item);
+            });
+        }
+
+        function adicionarAoCarrinho(produtoId) {
+            const produto = produtosDisponiveis.find(p => p.id == produtoId);
+            if (!produto || produto.quantidade <= 0) {
+                mostrarMensagem("Produto sem estoque ou não encontrado.", "erro");
+                return;
+            }
+
+            if (carrinho.has(produto.id)) {
+                const itemCarrinho = carrinho.get(produto.id);
+                const novaQuantidade = itemCarrinho.quantidade + 1;
+                if (novaQuantidade > produto.quantidade) {
+                    mostrarMensagem(`Não é possível adicionar mais de ${produto.quantidade} unidades de ${produto.nome}.`, "erro");
+                    return;
+                }
+                itemCarrinho.quantidade = novaQuantidade;
+                itemCarrinho.elemento.querySelector('input').value = novaQuantidade;
+            } else {
+                const itemCarrinho = {
+                    produto: produto,
+                    quantidade: 1,
+                    precoUnitarioVenda: produto.preco, 
+                    elemento: criarItemCarrinhoHTML(produto, 1)
+                };
+                carrinho.set(produto.id, itemCarrinho);
+                carrinhoVenda.appendChild(itemCarrinho.elemento);
+                carrinhoVazioMensagem.style.display = 'none';
+            }
+            atualizarCarrinho();
+        }
+
+        function criarItemCarrinhoHTML(produto, quantidade) {
+            const item = document.createElement('li');
+            item.dataset.produtoId = produto.id;
+            item.innerHTML = `
+                <span>${produto.nome} - R$ ${produto.preco.toFixed(2)}</span>
+                <div>
+                    <input type="number" value="${quantidade}" min="1" max="${produto.quantidade}">
+                    <button class="remover-item">Remover</button>
+                </div>
+            `;
+            const inputQuantidade = item.querySelector('input');
+            inputQuantidade.onchange = () => atualizarQuantidadeCarrinho(produto.id, inputQuantidade.value);
+            inputQuantidade.onblur = () => { 
+                if (parseInt(inputQuantidade.value) > produto.quantidade) {
+                    mostrarMensagem(`Quantidade máxima para ${produto.nome} é ${produto.quantidade}.`, "erro");
+                    inputQuantidade.value = produto.quantidade;
+                    atualizarQuantidadeCarrinho(produto.id, produto.quantidade);
+                } else if (parseInt(inputQuantidade.value) <= 0) {
+                    mostrarMensagem("Quantidade deve ser no mínimo 1.", "erro");
+                    inputQuantidade.value = 1;
+                    atualizarQuantidadeCarrinho(produto.id, 1);
+                }
+            };
+            item.querySelector('.remover-item').onclick = () => removerDoCarrinho(produto.id);
+            return item;
+        }
+
+        function atualizarQuantidadeCarrinho(produtoId, novaQuantidade) {
+            const itemCarrinho = carrinho.get(produtoId);
+            if (itemCarrinho) {
+                const produtoOriginal = produtosDisponiveis.find(p => p.id == produtoId);
+                const quantidadeInt = parseInt(novaQuantidade);
+
+                if (isNaN(quantidadeInt) || quantidadeInt <= 0) {
+                    mostrarMensagem("Quantidade inválida. Mínimo 1.", "erro");
+                    itemCarrinho.elemento.querySelector('input').value = 1;
+                    itemCarrinho.quantidade = 1;
+                } else if (quantidadeInt > produtoOriginal.quantidade) {
+                    mostrarMensagem(`Quantidade máxima para ${produtoOriginal.nome} é ${produtoOriginal.quantidade}.`, "erro");
+                    itemCarrinho.elemento.querySelector('input').value = produtoOriginal.quantidade;
+                    itemCarrinho.quantidade = produtoOriginal.quantidade;
+                } else {
+                    itemCarrinho.quantidade = quantidadeInt;
+                }
+                atualizarCarrinho();
+            }
+        }
+
+        function removerDoCarrinho(produtoId) {
+            const itemCarrinho = carrinho.get(produtoId);
+            if (itemCarrinho) {
+                itemCarrinho.elemento.remove();
+                carrinho.delete(produtoId);
+                atualizarCarrinho();
+            }
+        }
+
+        function atualizarCarrinho() {
+            let total = 0;
+            carrinho.forEach(item => {
+                total += item.produto.preco * item.quantidade;
+            });
+            totalVendaSpan.textContent = `Total: R$ ${total.toFixed(2)}`;
+
+            // Agora a habilitação/desabilitação depende apenas do carrinho
+            const isCarrinhoVazio = carrinho.size === 0;
+            
+            if (isCarrinhoVazio) {
+                carrinhoVazioMensagem.style.display = 'block';
+            } else {
+                carrinhoVazioMensagem.style.display = 'none';
+            }
+            
+            btnFinalizarVenda.disabled = isCarrinhoVazio;
+            btnCancelarVenda.disabled = isCarrinhoVazio;
+        }
+
+        async function finalizarVenda() {
+            if (carrinho.size === 0) {
+                mostrarMensagem("Adicione itens ao carrinho para finalizar a venda.", "erro");
+                return;
+            }
+
+            // CLIENTE E FUNCIONÁRIO NÃO SÃO MAIS NECESSÁRIOS
+            // const clienteId = clienteSelect.value;
+            // const funcionarioId = funcionarioSelect.value;
+
+            // if (!clienteId) {
+            //     mostrarMensagem("Selecione um cliente para a venda.", "erro");
+            //     return;
+            // }
+            // if (!funcionarioId) {
+            //     mostrarMensagem("Selecione um funcionário para a venda.", "erro");
+            //     return;
+            // }
+
+            desabilitarBotoesVenda(true);
+            mostrarMensagem("Finalizando venda...", "loading");
+
+            const itensParaVenda = Array.from(carrinho.values()).map(item => ({
+                produtoId: parseInt(item.produto.id), 
+                quantidadeVendida: item.quantidade,
+                precoUnitarioVenda: item.precoUnitarioVenda
+            }));
+
+            // Removendo clienteId e funcionarioId do objeto vendaRequest
+            const vendaRequest = {
+                // clienteId: parseInt(clienteId), 
+                // funcionarioId: parseInt(funcionarioId), 
+                itens: itensParaVenda
+            };
+
+            console.log("JSON sendo enviado:", JSON.stringify(vendaRequest, null, 2)); 
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/vendas/processar`, { 
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(vendaRequest)
+                });
+
+                if (!res.ok) {
+                    let errorMessage = res.statusText;
+                    try {
+                        const errorResponse = await res.json(); 
+                        errorMessage = errorResponse.message || errorResponse.error || res.statusText;
+                    } catch (jsonError) {
+                    }
+                    throw new Error(`Status ${res.status}: ${errorMessage}`);
+                }
+
+                const vendaFinalizada = await res.json();
+                mostrarMensagem(`Venda #${vendaFinalizada.id} finalizada com sucesso!`, "sucesso");
+                limparCarrinho();
+                await carregarDadosIniciais(); 
+            } catch (e) {
+                mostrarMensagem(`Erro ao finalizar venda: ${e.message}`, "erro");
+            } finally {
+                atualizarCarrinho();
+            }
+        }
+
+        function limparCarrinho() {
+            carrinho.clear();
+            carrinhoVenda.innerHTML = "";
+            carrinhoVenda.appendChild(carrinhoVazioMensagem);
+            carrinhoVazioMensagem.style.display = 'block';
+            totalVendaSpan.textContent = "Total: R$ 0.00";
+            // REMOVENDO LIMPEZA DOS SELECTS REMOVIDOS
+            // clienteSelect.value = ""; 
+            // funcionarioSelect.value = ""; 
+            atualizarCarrinho(); 
+        }
+
+        // REMOVENDO EVENT LISTENERS DOS SELECTS REMOVIDOS
+        // clienteSelect.addEventListener("change", atualizarCarrinho);
+        // funcionarioSelect.addEventListener("change", atualizarCarrinho);
+
+        btnFinalizarVenda.addEventListener("click", finalizarVenda);
+        btnCancelarVenda.addEventListener("click", limparCarrinho);
+
+        window.addEventListener("load", carregarDadosIniciais);
+    </script>
+</body>
+</html>
